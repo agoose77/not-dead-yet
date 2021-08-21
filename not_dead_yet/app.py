@@ -8,7 +8,7 @@ from .notifier import FileNotifier
 from .resource import InjectedStaticResource
 from .ws import WebsocketHandler
 
-logger = logging.getLogger((__name__))
+logger = logging.getLogger(__name__)
 
 
 async def _run_web_app(app, host="localhost", port=8080, event=None):
@@ -28,14 +28,14 @@ async def _run_web_app(app, host="localhost", port=8080, event=None):
         await runner.cleanup()
 
 
-async def run_app(root_dir, host="localhost", port=8080, dt=1 / 60):
+async def run_app(root_dir, host="localhost", port=8080, dt=1 / 60, ignore_patterns=None):
     app = aiohttp.web.Application()
 
     # Register WS under random UUID
     ws_path = f"/{uuid.uuid4()}/subscribe"
 
     # Setup notifier for clients
-    notifier = FileNotifier(root_dir)
+    notifier = FileNotifier(root_dir, ignore_patterns=ignore_patterns)
     handler = WebsocketHandler(notifier)
     app.router.add_routes([aiohttp.web.get(ws_path, handler)])
 
@@ -50,8 +50,8 @@ async def run_app(root_dir, host="localhost", port=8080, dt=1 / 60):
     app.router.register_resource(resource)
 
     # Run notifier
-    watcher = asyncio.create_task(notifier.run())
+    watcher = asyncio.create_task(notifier.run(dt=dt))
 
     logger.info(f"Running on http://{host}:{port}/")
 
-    await asyncio.gather(watcher, _run_web_app(app))
+    await asyncio.gather(watcher, _run_web_app(app, host=host, port=port))

@@ -19,11 +19,14 @@ def main(argv=None):
     parser.add_argument(
         "-f", "--frequency", default=360, help="poll frequency (per minute)"
     )
+    parser.add_argument(
+        "-i", "--ignore", action="append", help="glob pattern to ignore", default=[".*"]
+    )
     args = parser.parse_args(args=argv)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
-        run_app(args.directory, args.host, args.port, 60 / args.frequency)
+        run_app(args.directory, args.host, args.port, 60 / args.frequency, args.ignore)
     )
 
 

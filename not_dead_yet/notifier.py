@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import time
+import fnmatch
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +15,13 @@ def scandir_walk(path):
             yield entry
 
 
-def _most_recent_mtime(directory):
+def _most_recent_mtime(directory, ignore_patterns):
     last_mtime = 0
     for p in scandir_walk(directory):
+        # Ignore particular names
+        if any(fnmatch.fnmatch(p.name, x) for x in ignore_patterns):
+            continue
+
         mtime = p.stat().st_mtime
         if mtime > last_mtime:
             last_mtime = mtime
@@ -28,9 +33,10 @@ class FileNotifier:
         def __init__(self, notifier):
             self._notifier = notifier
 
-    def __init__(self, directory):
+    def __init__(self, directory, ignore_patterns=None):
         self._directory = directory
         self._notifiers = set()
+        self._ignore_patterns = ignore_patterns or []
 
     def subscribe(self, notifier):
         self._notifiers.add(notifier)
@@ -55,7 +61,7 @@ class FileNotifier:
 
             # Determine when most recent file change occurred
             last_changed_mtime = await asyncio.get_running_loop().run_in_executor(
-                None, _most_recent_mtime, self._directory
+                None, _most_recent_mtime, self._directory, self._ignore_patterns
             )
 
             if last_changed_mtime > last_notified_mtime:
