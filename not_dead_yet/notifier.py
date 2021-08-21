@@ -17,7 +17,7 @@ class FileNotifier:
         self._notifiers.add(item)
         return self._Token(item)
 
-    def forget_path(self, token):
+    def unsubscribe(self, token):
         self._notifiers.remove(token._item)
 
     async def run(self, dt=1 / 60):
