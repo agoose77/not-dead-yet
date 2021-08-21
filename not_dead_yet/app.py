@@ -34,6 +34,11 @@ async def run_app(root_dir, host="localhost", port=8080, dt=1 / 60):
     # Register WS under random UUID
     ws_path = f"/{uuid.uuid4()}/subscribe"
 
+    # Setup notifier for clients
+    notifier = FileNotifier(root_dir)
+    handler = WebsocketHandler(notifier)
+    app.router.add_routes([aiohttp.web.get(ws_path, handler)])
+
     # Create static resource
     resource = InjectedStaticResource(
         ws_path=ws_path,
@@ -42,14 +47,6 @@ async def run_app(root_dir, host="localhost", port=8080, dt=1 / 60):
         show_index=True,
         append_version=True,
     )
-
-    # Setup notifier for clients
-    notifier = FileNotifier()
-    handler = WebsocketHandler(resource, notifier)
-
-    # Register WS route *first*
-    app.router.add_routes([aiohttp.web.get(ws_path, handler)])
-    # Register static files last
     app.router.register_resource(resource)
 
     # Run notifier

@@ -3,12 +3,11 @@ import logging
 
 import aiohttp.web
 
-logger = logging.getLogger(__name_)
+logger = logging.getLogger(__name__)
 
 
 class WebsocketHandler:
-    def __init__(self, resource, notifier):
-        self.resource = resource
+    def __init__(self, notifier):
         self.notifier = notifier
 
     @staticmethod
@@ -28,8 +27,7 @@ class WebsocketHandler:
                 if msg.data == "close":
                     await ws.close()
                 else:
-                    path = self.resource.resolve_path(msg.data)
-                    token = self.notifier.subscribe(path, self._get_notifier(ws))
+                    token = self.notifier.subscribe(self._get_notifier(ws))
 
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 if token is not None:

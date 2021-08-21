@@ -23,9 +23,6 @@ class InjectedStaticResource(aiohttp.web.StaticResource):
         self._payload = LISTENER_JS_TEMPLATE.format(path=ws_path)
         super().__init__(*args, **kwargs)
 
-    def resolve_path(self, path: str) -> pathlib.Path:
-        return self._directory / path[len(self._prefix) + 1 :]
-
     async def _handle(self, *args, **kwargs):
         response = await super()._handle(*args, **kwargs)
 
