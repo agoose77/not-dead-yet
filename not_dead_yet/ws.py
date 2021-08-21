@@ -1,5 +1,9 @@
 import asyncio
+import logging
+
 import aiohttp.web
+
+logger = logging.getLogger(__name_)
 
 
 class WebsocketHandler:
@@ -30,4 +34,4 @@ class WebsocketHandler:
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 if token is not None:
                     self.notifier.unsubscribe(token)
-                print("ws connection closed with exception %s" % ws.exception())
+                logger.error("ws connection closed with exception %s" % ws.exception())
