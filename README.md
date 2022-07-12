@@ -4,6 +4,8 @@
 [pypi-badge]: https://img.shields.io/pypi/v/not-dead-yet
 [pypi]: https://pypi.org/project/not-dead-yet
 
+![Monty Python and the Holy Grail](https://media.giphy.com/media/1cv7Gwf0Utdeg/giphy.gif)
+
 `not_dead_yet` is a stupid simple web server, which provides a live-server over HTML files. 
 If any files in the given directory are modified, loaded HTML pages will refresh.
 
