@@ -35,7 +35,7 @@ async def run_static_server(
     port=8080,
     dt=1 / 60,
     ignore_patterns=None,
-    listener_port=9000,
+    control_port=9000,
     watch_files=True,
 ):
     app = aiohttp.web.Application()
@@ -68,7 +68,7 @@ async def run_static_server(
             notifier.notify()
         asyncio.ensure_future(task())
 
-    listener = asyncio.start_server(_accept_connection, host=host, port=listener_port)
+    listener = asyncio.start_server(_accept_connection, host=host, port=control_port)
     coros_or_futures = [
         _run_web_app(app, host=host, port=port),
         listener,

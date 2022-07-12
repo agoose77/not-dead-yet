@@ -12,20 +12,16 @@ def setup_serve_command(parser):
         type=pathlib.Path,
         help="base path to serve files from",
     )
+    parser.add_argument("-p", "--port", type=int, default=8080, help="port to serve from")
     parser.add_argument(
-        "-b", "--host", default="localhost", help="IP address to serve from"
-    )
-    parser.add_argument("-p", "--port", default=8080, help="port to serve from")
-    parser.add_argument(
-        "-l", "--listener", default=9000, help="port to listen for reload commands"
-    )
-    parser.add_argument(
-        "-f", "--frequency", default=360, help="poll frequency (per minute)"
+        "-f", "--frequency", default=360, type=int, help="poll frequency (per minute)"
     )
     parser.add_argument(
         "-i", "--ignore", action="append", help="glob pattern to ignore", default=[".*"]
     )
     parser.add_argument("--no-watch", action="store_true", help="don't watch files")
+    parser.add_argument("-b", "--host", default="localhost", help="host IP address")
+    parser.add_argument("-c", "--control", type=int, default=9000, help="control port")
 
 
 def handle_serve_args(args):
@@ -37,27 +33,24 @@ def handle_serve_args(args):
             port=args.port,
             dt=60 / args.frequency,
             ignore_patterns=args.ignore,
-            listener_port=args.listener,
+            control_port=args.control,
             watch_files=not args.no_watch,
         )
     )
 
 
 def setup_reload_command(parser):
-    pass
+    parser.add_argument("-b", "--host", default="localhost", help="host IP address")
+    parser.add_argument("-c", "--control", type=int, default=9000, help="control port")
 
 
 def handle_reload_args(args):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.open_connection(args.host, args.listener))
+    loop.run_until_complete(asyncio.open_connection(args.host, args.control))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-
-    # Shared parameters
-    parser.add_argument("-b", "--host", default="localhost", help="host IP address")
-    parser.add_argument("-l", "--listener", default=9000, help="control port")
 
     subparsers = parser.add_subparsers()
     reload_parser = subparsers.add_parser("reload")
